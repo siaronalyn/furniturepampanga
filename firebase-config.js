@@ -8,7 +8,7 @@
 window.FIREBASE_CONFIG = {
     apiKey: '',
     authDomain: '',
-    databaseURL: '',  // hal. https://YOUR-PROJECT.firebaseio.com
+    databaseURL: 'https://console.firebase.google.com/u/0/project/furniturepampanga-94d0f/overview?authuser=0',  // hal. https://YOUR-PROJECT.firebaseio.com
     projectId: '',
     storageBucket: '',
     messagingSenderId: '',
