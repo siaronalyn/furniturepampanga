@@ -1,6 +1,49 @@
 (function runMain() {
 function main() {
 (function() {
+    function setupMobileNav() {
+        var headers = document.querySelectorAll('.header');
+        headers.forEach(function(header, idx) {
+            var hamburger = header.querySelector('.hamburger');
+            var navLinks = header.querySelector('.nav-links');
+            if (!hamburger || !navLinks) return;
+
+            if (!navLinks.id) navLinks.id = 'primary-nav-links-' + idx;
+            hamburger.setAttribute('aria-controls', navLinks.id);
+            hamburger.setAttribute('aria-expanded', header.classList.contains('menu-open') ? 'true' : 'false');
+
+            function closeMenu() {
+                header.classList.remove('menu-open');
+                hamburger.setAttribute('aria-expanded', 'false');
+            }
+
+            function toggleMenu() {
+                var open = header.classList.toggle('menu-open');
+                hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+
+            hamburger.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleMenu();
+            });
+
+            navLinks.addEventListener('click', function(e) {
+                var link = e.target && e.target.closest ? e.target.closest('a') : null;
+                if (link) closeMenu();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeMenu();
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 600) closeMenu();
+            });
+        });
+    }
+
+    setupMobileNav();
+
     var isProductPage = location.pathname.indexOf('product.html') !== -1;
     var params = isProductPage ? new URLSearchParams(location.search) : null;
     var productId = params ? params.get('id') : null;

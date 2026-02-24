@@ -15,6 +15,7 @@ body {
     background: #fff;
     line-height: 1.5;
 }
+img { max-width: 100%; height: auto; }
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -70,14 +71,15 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    position: relative;
 }
 .header-contact .header-container { justify-content: space-between; }
 .header-contact .nav-left { order: 1; }
-.header-contact .logo-center { order: 3; position: absolute; left: 50%; transform: translateX(-50%); }
+.header-contact .logo-center { order: 2; position: absolute; left: 50%; transform: translateX(-50%); }
 .header-contact .header-actions-right { order: 3; }
 .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit; font-weight: 600; font-size: 1.05rem; }
 .logo-icon {
-    height: 50px;
+    height: 36px;
     width: auto;
     background: transparent;
     /* Invert so white bird becomes dark and visible on light gray header */
@@ -823,7 +825,38 @@ textarea.admin-input {
     .related-products .products-grid { grid-template-columns: 1fr; }
     .product-categories-grid { grid-template-columns: 1fr; }
     .category-products-grid { grid-template-columns: 1fr; }
-    .nav-links { display: none; }
+    .header-container { padding: 0.75rem 1rem; }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        position: absolute;
+        top: calc(100% + 1px);
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        background: #e5e5e5;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: max-height 0.25s ease, opacity 0.2s ease;
+        z-index: 120;
+    }
+    .header.menu-open .nav-links {
+        max-height: 70vh;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .nav-links li { padding: 0; }
+    .nav-links a {
+        display: block;
+        padding: 0.85rem 1rem;
+    }
     .header-actions .icon-btn:not(:first-child) { display: none; }
     .search-bar { display: none; }
     .hamburger {

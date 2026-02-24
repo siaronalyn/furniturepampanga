@@ -24,8 +24,6 @@
                     <li><a href="admin.html" style="color: var(--accent); font-weight: 600;">&#9881;&#65039;</a></li>
                 </ul>
             </nav>
-           
-            </div>
             <button class="hamburger" aria-label="Toggle menu">
                 <span></span><span></span><span></span>
             </button>
@@ -324,9 +322,14 @@
         </div>
     </footer>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="storage.js"></script>
     <script src="script.js"></script>
     <script>
         (function() {
+            function runCatalog() {
             var params = new URLSearchParams(location.search);
             var category = params.get('category');
             var sub = params.get('sub');
@@ -473,6 +476,12 @@
                         '<p class="category-product-price">P13,000</p>';
                     productsGridEl.appendChild(card);
                 });
+            }
+            }
+            if (window.runWhenStorageReady) {
+                window.runWhenStorageReady(runCatalog);
+            } else {
+                runCatalog();
             }
         })();
     </script>
