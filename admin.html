@@ -37,6 +37,18 @@
             <h1>Product Image URL Manager</h1>
             <p class="admin-desc">Paste image URLs for each product. Images will be saved and displayed on product detail pages.</p>
 
+            <div class="admin-card" style="background: var(--bg-light); border: 1px solid var(--border-color);">
+                <h2 style="margin-top: 0;">&#128240; Shared data (makikita sa lahat ng browser)</h2>
+                <p class="admin-desc"><strong>Kung naka-set na ang Firebase</strong> (sa <code>firebase-config.js</code>): pag nag-Save ka dito, awtomatikong na-sync sa cloud. Kapag binuksan ang site sa <strong>ibang browser o device</strong>, makikita rin ang mga images.</p>
+                <p class="admin-desc"><strong>Kung wala pang Firebase:</strong> gamitin ang Export/Import. I-Export pagkatapos mag-Save, tapos sa ibang browser i-Import ang file.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem;">
+                    <button type="button" class="btn-save" id="exportImageData">Export data (download file)</button>
+                    <button type="button" class="btn-save" style="background: var(--text-muted);" id="importImageData">Import data (piliin ang file)</button>
+                    <input type="file" id="importFileInput" accept=".json,application/json" style="display: none;" />
+                    <span id="exportImportStatus" style="color: var(--text-muted); font-size: 0.9rem;"></span>
+                </div>
+            </div>
+
             <div class="admin-card home-bg-card">
                 <h2>Home background image</h2>
                 <p class="admin-desc" style="margin-bottom: 1rem;">I-set ang image URL para sa hero/banner ng home page. Ito ang malaking background sa taas ng Home.</p>
@@ -449,6 +461,10 @@
         </div>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="storage.js"></script>
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -600,13 +616,24 @@
                     localStorage.setItem(HOME_BG_KEY, url);
                     var status = document.getElementById('homeBgStatus');
                     if (status) { status.textContent = 'Saved.'; setTimeout(function () { status.textContent = ''; }, 2000); }
+                    if (window.syncToFirebase) window.syncToFirebase();
                 } catch (e) {}
             }
 
             document.addEventListener('DOMContentLoaded', function () {
             setupImagePreviews();
             initTabContentEditor();
-            loadHomeBgIntoForm();
+            function loadAllForms() {
+                loadHomeBgIntoForm();
+                loadProductIntoForm(document.getElementById('productId').value);
+                loadCatalogListingIntoForm();
+                loadVariantDetailsIntoForm();
+            }
+            if (window.runWhenStorageReady) {
+                window.runWhenStorageReady(loadAllForms);
+            } else {
+                loadAllForms();
+            }
             setupHomeBgPreview();
             var saveHomeBgBtn = document.getElementById('saveHomeBg');
             if (saveHomeBgBtn) saveHomeBgBtn.addEventListener('click', saveHomeBg);
@@ -615,8 +642,6 @@
             productIdSelect.addEventListener('change', function () {
                 loadProductIntoForm(productIdSelect.value);
             });
-
-            loadProductIntoForm(productIdSelect.value);
 
             document.getElementById('saveProductData').addEventListener('click', function () {
                 var productId = document.getElementById('productId').value;
@@ -636,6 +661,7 @@
                 var status = document.getElementById('saveStatus');
                 status.textContent = 'Saved.';
                 setTimeout(function () { status.textContent = ''; }, 2000);
+                if (window.syncToFirebase) window.syncToFirebase();
             });
 
             var CATALOG_LISTING_PREFIX = 'furniturePampangaCatalogListing_';
@@ -694,7 +720,6 @@
                     });
                 });
             }
-            loadCatalogListingIntoForm();
             setupCatalogListingPreviews();
             document.getElementById('catalogListingSubcategory').addEventListener('change', loadCatalogListingIntoForm);
             document.getElementById('saveCatalogListing').addEventListener('click', function () {
@@ -707,6 +732,7 @@
                 var status = document.getElementById('catalogListingStatus');
                 status.textContent = 'Saved.';
                 setTimeout(function () { status.textContent = ''; }, 2000);
+                if (window.syncToFirebase) window.syncToFirebase();
             });
 
             var VARIANT_PREFIX = 'furniturePampangaCatalogVariants_';
@@ -729,7 +755,6 @@
                     });
                 } catch (e) {}
             }
-            loadVariantDetailsIntoForm();
             document.getElementById('variantDetailSubcategory').addEventListener('change', loadVariantDetailsIntoForm);
             document.getElementById('saveVariantDetails').addEventListener('click', function () {
                 var data = {};
@@ -748,7 +773,75 @@
                     var status = document.getElementById('variantDetailStatus');
                     status.textContent = 'Saved.';
                     setTimeout(function () { status.textContent = ''; }, 2000);
+                    if (window.syncToFirebase) window.syncToFirebase();
                 } catch (e) {}
+            });
+
+            var EXPORT_PREFIX = 'furniturePampanga';
+            function exportImageData() {
+                var out = {};
+                try {
+                    for (var i = 0; i < localStorage.length; i++) {
+                        var key = localStorage.key(i);
+                        if (key && key.indexOf(EXPORT_PREFIX) === 0) {
+                            out[key] = localStorage.getItem(key);
+                        }
+                    }
+                    var json = JSON.stringify(out, null, 2);
+                    var blob = new Blob([json], { type: 'application/json' });
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'furniture-pampanga-image-data.json';
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    var status = document.getElementById('exportImportStatus');
+                    if (status) { status.textContent = 'Na-download na ang file.'; setTimeout(function () { status.textContent = ''; }, 3000); }
+                } catch (e) {
+                    var status = document.getElementById('exportImportStatus');
+                    if (status) status.textContent = 'Error: ' + (e.message || 'Export failed');
+                }
+            }
+            function importImageData() {
+                var input = document.getElementById('importFileInput');
+                if (!input) return;
+                input.click();
+            }
+            document.getElementById('exportImageData').addEventListener('click', exportImageData);
+            document.getElementById('importImageData').addEventListener('click', importImageData);
+            document.getElementById('importFileInput').addEventListener('change', function () {
+                var input = this;
+                var file = input.files && input.files[0];
+                if (!file) return;
+                var status = document.getElementById('exportImportStatus');
+                var reader = new FileReader();
+                reader.onload = function () {
+                    try {
+                        var data = JSON.parse(reader.result);
+                        if (data && typeof data === 'object') {
+                            var count = 0;
+                            for (var key in data) {
+                                if (data.hasOwnProperty(key) && key.indexOf(EXPORT_PREFIX) === 0) {
+                                    localStorage.setItem(key, data[key]);
+                                    count++;
+                                }
+                            }
+                            if (status) {
+                                status.textContent = 'Na-import na. ' + count + ' item(s). I-refresh ang page o buksan ang Catalog/Product para makita ang images.';
+                                setTimeout(function () { status.textContent = ''; }, 5000);
+                            }
+                            loadHomeBgIntoForm();
+                            loadProductIntoForm(document.getElementById('productId').value);
+                            loadCatalogListingIntoForm();
+                            loadVariantDetailsIntoForm();
+                        } else {
+                            if (status) status.textContent = 'Invalid file format.';
+                        }
+                    } catch (e) {
+                        if (status) status.textContent = 'Error: ' + (e.message || 'Invalid JSON');
+                    }
+                    input.value = '';
+                };
+                reader.readAsText(file);
             });
         });
     </script>

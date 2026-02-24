@@ -1,3 +1,5 @@
+(function runMain() {
+function main() {
 (function() {
     var isProductPage = location.pathname.indexOf('product.html') !== -1;
     var params = isProductPage ? new URLSearchParams(location.search) : null;
@@ -205,4 +207,11 @@
             if (homeBg) heroImg.src = homeBg;
         } catch (e) {}
     }
+})();
+}
+if (window.runWhenStorageReady) {
+    window.runWhenStorageReady(main);
+} else {
+    main();
+}
 })();
