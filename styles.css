@@ -61,7 +61,7 @@ body {
 }
 
 /* === Header === */
-.header { background: #fff; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+.header { background: #e5e5e5; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -76,7 +76,13 @@ body {
 .header-contact .logo-center { order: 2; position: absolute; left: 50%; transform: translateX(-50%); }
 .header-contact .header-actions-right { order: 3; }
 .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit; font-weight: 600; font-size: 1.05rem; }
-.logo-icon { height: 36px; width: auto; }
+.logo-icon {
+    height: 36px;
+    width: auto;
+    background: transparent;
+    /* Invert so white bird becomes dark and visible on light gray header */
+    filter: invert(1);
+}
 .nav-links { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.5rem; }
 .nav-links a { text-decoration: none; color: inherit; font-weight: 500; }
 .nav-links a:hover, .nav-links a.active { color: var(--accent); }
@@ -119,6 +125,25 @@ body {
 }
 .social-links a:hover { background: var(--accent); color: #fff; }
 .social-links svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* Footer responsive */
+@media (max-width: 768px) {
+    .footer { padding: 2rem 0 1rem; margin-top: 2rem; }
+    .footer .container { padding: 0 1rem; }
+    .footer-content { flex-direction: column; gap: 1.5rem; margin-bottom: 1.25rem; text-align: center; }
+    .footer-section h3 { margin-bottom: 0.75rem; }
+    .social-links { justify-content: center; }
+}
+@media (max-width: 480px) {
+    .footer { padding: 1.5rem 0 0.75rem; margin-top: 1.5rem; }
+    .footer-content { gap: 1.25rem; margin-bottom: 1rem; }
+    .footer-section h3 { font-size: 0.95rem; }
+    .footer-bottom { padding-top: 0.75rem; font-size: 0.85rem; text-align: center; }
+    .footer-bottom p { margin: 0; }
+    .social-links { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    .social-links a { width: 36px; height: 36px; }
+    .social-links svg { width: 18px; height: 18px; }
+}
 
 /* === Home: Hero === */
 .hero {
