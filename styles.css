@@ -73,11 +73,11 @@ body {
 }
 .header-contact .header-container { justify-content: space-between; }
 .header-contact .nav-left { order: 1; }
-.header-contact .logo-center { order: 2; position: absolute; left: 50%; transform: translateX(-50%); }
+.header-contact .logo-center { order: 3; position: absolute; left: 50%; transform: translateX(-50%); }
 .header-contact .header-actions-right { order: 3; }
 .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit; font-weight: 600; font-size: 1.05rem; }
 .logo-icon {
-    height: 36px;
+    height: 50px;
     width: auto;
     background: transparent;
     /* Invert so white bird becomes dark and visible on light gray header */
